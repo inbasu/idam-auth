@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "idam-auth"
+version = "0.1.0"
+description = ""
+authors = ["Inbasu <just.me.juncy@gmail.com>"]
+license = "metro-cc"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+requests = "^2.32.3"
+PyJWT = "^2.9.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+pre-commit = "^4.0.1"
+coverage = "^7.6.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
