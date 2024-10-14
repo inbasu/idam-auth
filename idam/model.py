@@ -5,4 +5,4 @@ class User(BaseModel):
     username: str
     email: str
     roles: list[str]
-    stores: list[int]
+    store_role: list[str]
