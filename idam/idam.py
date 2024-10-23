@@ -1,12 +1,12 @@
+import aiohttp
 import jwt
-import requests
 
 from .model import User
 
 
 class IDAM:
 
-    idam_url = ""
+    _idam_url = ""
 
     def __init__(self, client_id: str, client_secret: str, redirect_uri: str, realm_id: str) -> None:
         self.client_id = client_id
@@ -23,19 +23,21 @@ class IDAM:
     def code_url(self) -> str:
         params = [f"{key}={value}" for key, value in self.data.items()]
         data = ["response_type=code", *params]
-        return f"{self.idam_url}/authorize/api/oauth/authorization?{'&'.join(data)}"
+        return f"{self._idam_url}/authorize/api/oauth/authorization?{'&'.join(data)}"
 
-    def request_token(self, code: str) -> str:
-        response = requests.post(
-            url=self.idam_url,
-            auth=requests.auth.HTTPBasicAuth(self.client_id, self.__client_secret),
-            data={
-                "grant_type": "code",
-                "code": code,
-                **self.data,
-            },
-        )
-        return response.json().get("access_token", None)
+    async def request_token(self, code: str) -> str:
+        async with aiohttp.ClientSession() as session:
+            response = await session.get(
+                url=self._idam_url,
+                auth=aiohttp.BasicAuth(self.client_id, self.__client_secret),
+                data={
+                    "grant_type": "code",
+                    "code": code,
+                    **self.data,
+                },
+            )
+        result = await response.json()
+        return result.get("access_token", None)
 
     def decode_token(self, token: str) -> dict:
         return jwt.decode(token, algorithms=["HS256"], options={"verify_signature": False})
