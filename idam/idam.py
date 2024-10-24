@@ -6,7 +6,7 @@ from .model import User
 
 class IDAM:
 
-    _idam_url = ""
+    _idam_url = "https://idam.metrosystems.net"
 
     def __init__(self, client_id: str, client_secret: str, redirect_uri: str, realm_id: str) -> None:
         self.client_id = client_id
@@ -23,20 +23,14 @@ class IDAM:
     def code_url(self) -> str:
         params = [f"{key}={value}" for key, value in self.data.items()]
         data = ["response_type=code", *params]
-        return f"{self._idam_url}/authorize/api/oauth/authorization?{'&'.join(data)}"
+        return f"{self._idam_url}/authorize/api/oauth2/authorize?{'&'.join(data)}"
 
-    async def request_token(self, code: str) -> str:
-        async with aiohttp.ClientSession() as session:
-            response = await session.get(
-                url=self._idam_url,
-                auth=aiohttp.BasicAuth(self.client_id, self.__client_secret),
-                data={
-                    "grant_type": "code",
-                    "code": code,
-                    **self.data,
-                },
-            )
-        result = await response.json()
+    async def request_token(self, code: str, **kwargs) -> str:
+        async with aiohttp.ClientSession(auth=aiohttp.BasicAuth(self.client_id, self.__client_secret)) as session:
+            data = {"grant_type": "authorization_code", "code": code, **self.data, **kwargs}
+            url = f"{self._idam_url}/authorize/api/oauth2/access_token"
+            async with session.post(url=url, data=data) as response:
+                result = await response.json()
         return result.get("access_token", None)
 
     def decode_token(self, token: str) -> dict:
