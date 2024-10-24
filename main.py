@@ -1,17 +1,19 @@
 import datetime
 from fastapi import FastAPI, Request, Response, status
 from fastapi.responses import RedirectResponse
-
+import os
+from dotenv import load_dotenv
 from idam import IDAM, TokenHandler, User
 
+load_dotenv()
 app = FastAPI(root_path="/auth")
 
 
 idam = IDAM(
-    client_id="M_INSIGHT",
-    realm_id="INS_REALM",
+    client_id=os.getenv("client_id", ""),
+    realm_id=os.getenv("realm_id", ""),
     redirect_uri="https://asset-tool.metro-cc.ru/auth/sso",
-    client_secret="xMRrGZi0Ro",
+    client_secret=os.getenv("client_secret", ""),
 )
 token_handler = TokenHandler(
     secret="Lina Invers",
